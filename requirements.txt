@@ -1,0 +1,9 @@
+pyuwsgi==2.0.23
+flask==3.0.2
+flask_jwt_extended==4.6.0
+pydantic==2.6
+redis==5.0.3
+selenium==4.18.1
+bs4==4.12.3
+requests==2.31.0
+lxml==5.1.0
