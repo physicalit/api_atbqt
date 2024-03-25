@@ -1,3 +1,6 @@
 *.log
 __pycache__
 *.sock
+*.ipynb
+.xlsx
+.csv
