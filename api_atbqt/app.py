@@ -12,7 +12,8 @@ from .scraper import get_data
 import threading
 
 semaphore_for_driver = threading.BoundedSemaphore(5)
-semaphore_for_redis = threading.BoundedSemaphore(10)
+semaphore_for_redis = threading.BoundedSemaphore(5)
+semaphore_for_redis_atfinish = threading.BoundedSemaphore(1)
 
 class Body(BaseModel):
     id: uuid.UUID = uuid.uuid4()
@@ -67,15 +68,15 @@ def disperse_threads():
     try:
         received_data = request.get_json()
         request_obj = Body(**received_data)
-    except:
-        return jsonify(result="Error reading request body"), 400
+    except Exception as e:
+        return jsonify(result="Error reading request body", data=f"{e}"), 400
     request_obj.id = uuid.uuid4()
     links = group_in_tabs(request_obj.links, request_obj.num_tabs)
     parse_options = ParseOptions(**request_obj.in_thread_options)
     for batch in links:
         future = executor.submit(get_data, id=request_obj.id, parse_options=parse_options, 
                                 group_of_tabs=batch, total_num=len(request_obj.links), semaphore_for_driver=semaphore_for_driver,
-                                semaphore_for_redis=semaphore_for_redis)
+                                semaphore_for_redis=semaphore_for_redis, semaphore_for_redis_atfinish=semaphore_for_redis_atfinish)
     tasks[request_obj.id] = future
     return jsonify({'success': True, 'uuid': request_obj.id, 'username': current_user}), 200
 
